@@ -138,28 +138,30 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	disableCacheFor := []ctrlclient.Object{&corev1.Secret{}}
+	clientOpt := ctrlclient.Options{
+		Cache: &ctrlclient.CacheOptions{DisableFor: disableCacheFor},
+	}
 
-	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
+	opt := ctrl.Options{
 		Scheme:                 scheme,
 		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "6b866dd9.keptn.sh",
-		// LeaderElectionReleaseOnCancel defines if the leader should step down voluntarily
-		// when the Manager ends. This requires the binary to immediately end when the
-		// Manager is stopped, otherwise, this setting is unsafe. Setting this significantly
-		// speeds up voluntary leader transitions as the new leader don't have to wait
-		// LeaseDuration time first.
-		//
-		// In the default scaffold provided, the program ends immediately after
-		// the manager stops, so would be fine to enable this option. However,
-		// if you are doing or is intended to do any operation such as perform cleanups
-		// after the manager stops then its usage might be unsafe.
-		// LeaderElectionReleaseOnCancel: true,
-		ClientDisableCacheFor: disableCacheFor, // due to https://github.com/kubernetes-sigs/controller-runtime/issues/550
-		// We disable secret informer cache so that the operator won't need clusterrole list access to secrets
-	})
+		Client:                 clientOpt,
+	}
+
+	var webhookBuilder webhook.Builder
+	if !disableWebhook {
+		webhookBuilder = webhook.NewWebhookServerBuilder().
+			LoadCertOptionsFromFlag().
+			SetPort(9443).
+			SetNamespace(env.PodNamespace).
+			SetPodName(env.PodName)
+		opt.WebhookServer = webhookBuilder.GetWebhookServer()
+	}
+
+	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), opt)
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
 		os.Exit(1)
@@ -326,32 +328,20 @@ func main() {
 		os.Exit(1)
 	}
 	if !disableWebhook {
-		webhookBuilder := webhook.NewWebhookBuilder().
-			SetNamespace(env.PodNamespace).
-			SetPodName(env.PodName).
-			SetManagerProvider(
-				webhook.NewWebhookManagerProvider(
-					mgr.GetWebhookServer().CertDir, "tls.key", "tls.crt"),
-			).
-			SetCertificateWatcher(
-				certificates.NewCertificateWatcher(
-					mgr.GetAPIReader(),
-					mgr.GetWebhookServer().CertDir,
-					env.PodNamespace,
-					certCommon.SecretName,
-					setupLog,
-				),
-			)
+		webhookBuilder.SetCertificateWatcher(
+			certificates.NewCertificateWatcher(
+				mgr.GetAPIReader(),
+				webhookBuilder.GetOptions().CertDir,
+				env.PodNamespace,
+				certCommon.SecretName,
+				setupLog,
+			),
+		)
 
-		setupLog.Info("starting webhook and manager")
+		setupLog.Info("starting webhook")
+		decoder := admission.NewDecoder(mgr.GetScheme())
 
-		decoder, err := admission.NewDecoder(mgr.GetScheme())
-		if err != nil {
-			setupLog.Error(err, "unable to initialize decoder")
-			os.Exit(1)
-		}
-
-		if err := webhookBuilder.Run(mgr, map[string]*ctrlWebhook.Admission{
+		webhookBuilder.Register(mgr, map[string]*ctrlWebhook.Admission{
 			"/mutate-v1-pod": {
 				Handler: &pod_mutator.PodMutatingWebhook{
 					Client:      mgr.GetClient(),
@@ -361,19 +351,14 @@ func main() {
 					Log:         ctrl.Log.WithName("Mutating Webhook"),
 				},
 			},
-		}); err != nil {
-			setupLog.Error(err, "problem running manager")
-			os.Exit(1)
-		}
+		})
 
-	} else {
-		flag.Parse()
-		setupLog.Info("starting manager")
-		setupLog.Info("Keptn lifecycle operator is alive")
-		if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-			setupLog.Error(err, "problem running manager")
-			os.Exit(1)
-		}
+	}
+	setupLog.Info("starting manager")
+	setupLog.Info("Keptn lifecycle operator is alive")
+	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+		setupLog.Error(err, "problem running manager")
+		os.Exit(1)
 	}
 
 }
