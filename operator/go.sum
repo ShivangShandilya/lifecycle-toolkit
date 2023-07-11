@@ -204,10 +204,10 @@ github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024/go.mod h1
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
 github.com/kelseyhightower/envconfig v1.4.0 h1:Im6hONhd3pLkfDFsbRgu68RDNkGF1r3dvMUtDTo2cv8=
 github.com/kelseyhightower/envconfig v1.4.0/go.mod h1:cccZRl6mQpaq41TPp5QxidR+Sa3axMbJDNb//FQX6Gg=
-github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711112158-269562d575dd h1:jlfT9LEGRHpEMUq5cW/PiH91BWnRFY4DCAt0FgBVSBU=
-github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711112158-269562d575dd/go.mod h1:Wunhr0b7Jh71S536ixCoRcaP8jEYQ+GvYybpUnLuWK4=
-github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230710115409-342d9d14fff2 h1:y2pMO/jZnwLSCFio4HoXRzYmpwTqRegarOLfVFmi+zA=
-github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230710115409-342d9d14fff2/go.mod h1:mNq5uNC8+RlDrIBtrcqinDEvKOouR2nsGEYHCRczVaU=
+github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711115826-32d63c9a4565 h1:FW0TzvwZ5cj1Mlhkl0W1OVYYhcHiF8Hp5NEpQ8LOYCw=
+github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711115826-32d63c9a4565/go.mod h1:Wunhr0b7Jh71S536ixCoRcaP8jEYQ+GvYybpUnLuWK4=
+github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230711115826-32d63c9a4565 h1:3LNk27M5w8OPN7NR2DYr+cpjNkWOUU5dHX6Zh045DFs=
+github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230711115826-32d63c9a4565/go.mod h1:vCZ9xMpX2aqdQMBQ1IP2dwIct8EqGoZT8l6fxxte6H0=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/kr/fs v0.1.0/go.mod h1:FFnZGqtBN9Gxj7eW1uZ42v5BccTP0vu6NEaFoC2HwRg=

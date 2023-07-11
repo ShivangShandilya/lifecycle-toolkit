@@ -44,8 +44,8 @@ require (
 )
 
 require (
-	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711112158-269562d575dd
-	github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230710115409-342d9d14fff2
+	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711115826-32d63c9a4565
+	github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230711115826-32d63c9a4565
 )
 
 require (
