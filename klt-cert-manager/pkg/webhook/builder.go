@@ -16,30 +16,29 @@ const (
 	FlagCertificateKeyFileName = "cert-key"
 )
 
-var (
-	certificateDirectory   string
-	certificateFileName    string
-	certificateKeyFileName string
-)
+//go:generate moq -pkg fake -skip-ensure -out ../fake/manager_mock.go . IManager:MockManager
+type IManager manager.Manager
 
 type Builder struct {
-	managerProvider    Provider
 	namespace          string
 	podName            string
 	certificateWatcher certificates.ICertificateWatcher
+	options            webhook.Options
 }
 
-func NewWebhookBuilder() Builder {
-	return Builder{}
-}
-
-func (builder Builder) SetManagerProvider(provider Provider) Builder {
-	builder.managerProvider = provider
-	return builder
+func NewWebhookServerBuilder() Builder {
+	b := Builder{}
+	b.loadCertOptionsFromFlag()
+	return b
 }
 
 func (builder Builder) SetNamespace(namespace string) Builder {
 	builder.namespace = namespace
+	return builder
+}
+
+func (builder Builder) SetPort(port int) Builder {
+	builder.options.Port = port
 	return builder
 }
 
@@ -53,20 +52,9 @@ func (builder Builder) SetCertificateWatcher(watcher certificates.ICertificateWa
 	return builder
 }
 
-func (builder Builder) GetManagerProvider() Provider {
-	if builder.managerProvider == nil {
-		builder.managerProvider = NewWebhookManagerProvider(certificateDirectory, certificateKeyFileName, certificateFileName)
-	}
-
-	return builder.managerProvider
-}
-
 // Run ensures that the secret containing the certificate required for the webhooks is available, and then registers the
 // given webhooks at the webhookManager's webhook server.
 func (builder Builder) Run(webhookManager manager.Manager, webhooks map[string]*webhook.Admission) error {
-
-	addFlags()
-	builder.GetManagerProvider().SetupWebhookServer(webhookManager)
 
 	builder.certificateWatcher.WaitForCertificates()
 
@@ -79,9 +67,17 @@ func (builder Builder) Run(webhookManager manager.Manager, webhooks map[string]*
 	return errors.WithStack(err)
 }
 
-func addFlags() {
-	flag.StringVar(&certificateDirectory, FlagCertificateDirectory, "/tmp/webhook/certs", "Directory to look certificates for.")
-	flag.StringVar(&certificateFileName, FlagCertificateFileName, "tls.crt", "File name for the public certificate.")
-	flag.StringVar(&certificateKeyFileName, FlagCertificateKeyFileName, "tls.key", "File name for the private key.")
+func (builder Builder) loadCertOptionsFromFlag() {
+	flag.StringVar(&builder.options.CertDir, FlagCertificateDirectory, "/tmp/webhook/certs", "Directory to look certificates for.")
+	flag.StringVar(&builder.options.CertName, FlagCertificateFileName, "tls.crt", "File name for the public certificate.")
+	flag.StringVar(&builder.options.KeyName, FlagCertificateKeyFileName, "tls.key", "File name for the private key.")
 	flag.Parse()
+}
+
+func (builder Builder) GetWebhookServer() webhook.Server {
+	return webhook.NewServer(builder.options)
+}
+
+func (builder Builder) GetOptions() webhook.Options {
+	return builder.options
 }
