@@ -2,10 +2,7 @@ package webhook
 
 import (
 	"flag"
-
 	"github.com/keptn/lifecycle-toolkit/klt-cert-manager/pkg/certificates"
-	"github.com/pkg/errors"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
@@ -28,7 +25,6 @@ type Builder struct {
 
 func NewWebhookServerBuilder() Builder {
 	b := Builder{}
-	b.loadCertOptionsFromFlag()
 	return b
 }
 
@@ -52,26 +48,12 @@ func (builder Builder) SetCertificateWatcher(watcher certificates.ICertificateWa
 	return builder
 }
 
-// Run ensures that the secret containing the certificate required for the webhooks is available, and then registers the
-// given webhooks at the webhookManager's webhook server.
-func (builder Builder) Run(webhookManager manager.Manager, webhooks map[string]*webhook.Admission) error {
-
-	builder.certificateWatcher.WaitForCertificates()
-
-	for path, admissionWebhook := range webhooks {
-		webhookManager.GetWebhookServer().Register(path, admissionWebhook)
-	}
-
-	signalHandler := ctrl.SetupSignalHandler()
-	err := webhookManager.Start(signalHandler)
-	return errors.WithStack(err)
-}
-
-func (builder Builder) loadCertOptionsFromFlag() {
+func (builder Builder) LoadCertOptionsFromFlag() Builder {
 	flag.StringVar(&builder.options.CertDir, FlagCertificateDirectory, "/tmp/webhook/certs", "Directory to look certificates for.")
 	flag.StringVar(&builder.options.CertName, FlagCertificateFileName, "tls.crt", "File name for the public certificate.")
 	flag.StringVar(&builder.options.KeyName, FlagCertificateKeyFileName, "tls.key", "File name for the private key.")
 	flag.Parse()
+	return builder
 }
 
 func (builder Builder) GetWebhookServer() webhook.Server {
@@ -80,4 +62,16 @@ func (builder Builder) GetWebhookServer() webhook.Server {
 
 func (builder Builder) GetOptions() webhook.Options {
 	return builder.options
+}
+
+// Register ensures that the secret containing the certificate required for the webhooks is available, and then registers the
+// given webhooks at the webhookManager's webhook server.
+func (builder Builder) Register(webhookManager manager.Manager, webhooks map[string]*webhook.Admission) {
+
+	builder.certificateWatcher.WaitForCertificates()
+
+	for path, admissionWebhook := range webhooks {
+		webhookManager.GetWebhookServer().Register(path, admissionWebhook)
+	}
+
 }

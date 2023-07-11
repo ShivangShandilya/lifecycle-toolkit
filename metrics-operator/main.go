@@ -115,6 +115,7 @@ func main() {
 	var webhookBuilder webhook.Builder
 	if !disableWebhook {
 		webhookBuilder = webhook.NewWebhookServerBuilder().
+			LoadCertOptionsFromFlag().
 			SetPort(9443).
 			SetNamespace(env.PodNamespace).
 			SetPodName(env.PodName)
@@ -164,20 +165,14 @@ func main() {
 				certCommon.SecretName,
 				setupLog,
 			))
+		webhookBuilder.Register(mgr, nil)
 		setupLog.Info("starting webhook and manager")
-		if err := webhookBuilder.Run(mgr, nil); err != nil {
-			setupLog.Error(err, "problem running manager")
-			os.Exit(1)
-		}
-
-	} else {
-		flag.Parse()
-		setupLog.Info("starting manager")
-		setupLog.Info("Keptn metrics-operator is alive")
-		if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
-			setupLog.Error(err, "problem running manager")
-			os.Exit(1)
-		}
+	}
+	setupLog.Info("starting manager")
+	setupLog.Info("Keptn metrics-operator is alive")
+	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+		setupLog.Error(err, "problem running manager")
+		os.Exit(1)
 	}
 }
 

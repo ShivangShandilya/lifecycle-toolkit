@@ -48,9 +48,7 @@ func TestBuilder_Run(t *testing.T) {
 		"/my-url":       {},
 		"/my-other-url": {},
 	}
-	err := builder.Run(mockManager, webhooks)
-
-	require.Nil(t, err)
+	builder.Register(mockManager, webhooks)
 
 	require.Len(t, mockManager.GetWebhookServerCalls(), 2)
 	require.Len(t, mockCertificateWatcher.WaitForCertificatesCalls(), 1)
