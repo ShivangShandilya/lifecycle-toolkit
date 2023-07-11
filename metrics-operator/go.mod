@@ -8,7 +8,7 @@ require (
 	github.com/go-logr/logr v1.2.4
 	github.com/gorilla/mux v1.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711111918-b44629b960ff
+	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711112158-269562d575dd
 	github.com/open-feature/go-sdk v1.4.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.16.0
@@ -120,6 +120,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace (
-	golang.org/x/net => golang.org/x/net v0.10.0
-)
+replace golang.org/x/net => golang.org/x/net v0.10.0
