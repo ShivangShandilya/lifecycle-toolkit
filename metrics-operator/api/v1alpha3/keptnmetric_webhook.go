@@ -17,7 +17,6 @@ limitations under the License.
 package v1alpha3
 
 import (
-	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"time"
 
 	"github.com/pkg/errors"
@@ -28,6 +27,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // log is for logging in this package.
