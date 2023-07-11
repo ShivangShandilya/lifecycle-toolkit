@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha3
 
 import (
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 	"time"
 
 	"github.com/pkg/errors"
@@ -43,24 +44,24 @@ func (r *KeptnMetric) SetupWebhookWithManager(mgr ctrl.Manager) error {
 var _ webhook.Validator = &KeptnMetric{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *KeptnMetric) ValidateCreate() error {
+func (r *KeptnMetric) ValidateCreate() (admission.Warnings, error) {
 	keptnmetriclog.Info("validate create", "name", r.Name)
 
-	return r.validateKeptnMetric()
+	return []string{}, r.validateKeptnMetric()
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *KeptnMetric) ValidateUpdate(old runtime.Object) error {
+func (r *KeptnMetric) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	keptnmetriclog.Info("validate update", "name", r.Name)
 
-	return r.validateKeptnMetric()
+	return []string{}, r.validateKeptnMetric()
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *KeptnMetric) ValidateDelete() error {
+func (r *KeptnMetric) ValidateDelete() (admission.Warnings, error) {
 	keptnmetriclog.Info("validate delete", "name", r.Name)
 
-	return nil
+	return []string{}, nil
 }
 
 func (s *KeptnMetric) validateKeptnMetric() error {
