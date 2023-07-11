@@ -8,8 +8,6 @@ require (
 	github.com/go-logr/logr v1.2.4
 	github.com/imdario/mergo v0.3.16
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230630070122-4ad9bbf74960
-	github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230627093608-472eac0c8e2b
 	github.com/magiconair/properties v1.8.7
 	github.com/onsi/ginkgo/v2 v2.11.0
 	github.com/onsi/gomega v1.27.8
@@ -43,6 +41,11 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
+)
+
+require (
+	github.com/keptn/lifecycle-toolkit/klt-cert-manager v0.0.0-20230711112158-269562d575dd
+	github.com/keptn/lifecycle-toolkit/metrics-operator v0.0.0-20230710115409-342d9d14fff2
 )
 
 require (
@@ -102,8 +105,4 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-replace (
-	github.com/keptn/lifecycle-toolkit/klt-cert-manager => ../klt-cert-manager
-	github.com/keptn/lifecycle-toolkit/metrics-operator => ../metrics-operator
-	golang.org/x/net => golang.org/x/net v0.10.0
-)
+replace golang.org/x/net => golang.org/x/net v0.10.0
