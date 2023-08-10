@@ -13,7 +13,7 @@ checks
 | `scheduler.scheduler.containerSecurityContext`                                   | Sets security context                                          |                           |
 | `scheduler.scheduler.env.otelCollectorUrl`                                       | sets url for open telemetry collector                          | `otel-collector:4317`     |
 | `scheduler.scheduler.image.repository`                                           | set image repository for scheduler                             | `ghcr.io/keptn/scheduler` |
-| `scheduler.scheduler.image.tag`                                                  | set image tag for scheduler <!---x-release-please-version-->   | `v0.8.1`                  |
+| `scheduler.scheduler.image.tag`                                                  | set image tag for scheduler <!---x-release-please-version-->   | `v0.8.2`                  |
 | `scheduler.scheduler.imagePullPolicy`                                            | set image pull policy for scheduler                            | `Always`                  |
 | `scheduler.scheduler.livenessProbe`                                              | customizable liveness probe for the scheduler                  |                           |
 | `scheduler.scheduler.readinessProbe`                                             | customizable readiness probe for the scheduler                 |                           |
@@ -91,10 +91,10 @@ checks
 | `lifecycleOperator.manager.env.keptnWorkloadInstanceControllerLogLevel`       | sets the log level of Keptn WorkloadInstance Controller                | `0`                                      |
 | `lifecycleOperator.manager.env.optionsControllerLogLevel`                     | sets the log level of Keptn Options Controller                         | `0`                                      |
 | `lifecycleOperator.manager.env.otelCollectorUrl`                              | Sets the URL for the open telemetry collector                          | `otel-collector:4317`                    |
-| `lifecycleOperator.manager.env.functionRunnerImage`                           | specify image for deno task runtime <!---x-release-please-version-->   | `ghcr.io/keptn/functions-runtime:v0.8.1` |
-| `lifecycleOperator.manager.env.pythonRunnerImage`                             | specify image for python task runtime <!---x-release-please-version--> | `ghcr.io/keptn/python-runtime:v0.8.1`    |
+| `lifecycleOperator.manager.env.functionRunnerImage`                           | specify image for deno task runtime <!---x-release-please-version-->   | `ghcr.io/keptn/functions-runtime:v0.8.2` |
+| `lifecycleOperator.manager.env.pythonRunnerImage`                             | specify image for python task runtime <!---x-release-please-version--> | `ghcr.io/keptn/python-runtime:v0.8.2`    |
 | `lifecycleOperator.manager.image.repository`                                  | specify registry for manager image                                     | `ghcr.io/keptn/lifecycle-operator`       |
-| `lifecycleOperator.manager.image.tag`                                         | select tag for manager image <!---x-release-please-version-->          | `v0.8.1`                                 |
+| `lifecycleOperator.manager.image.tag`                                         | select tag for manager image <!---x-release-please-version-->          | `v0.8.2`                                 |
 | `lifecycleOperator.manager.imagePullPolicy`                                   | specify pull policy for manager image                                  | `Always`                                 |
 | `lifecycleOperator.manager.livenessProbe`                                     | custom livenessprobe for manager container                             |                                          |
 | `lifecycleOperator.manager.readinessProbe`                                    | custom readinessprobe for manager container                            |                                          |
