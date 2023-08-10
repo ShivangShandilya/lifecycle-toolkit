@@ -95,10 +95,10 @@ func (aw AnalysisWorkerPool) queryWorker(ctx context.Context, id int) {
 		}
 
 		templatedQuery := generateQuery(template.Spec.Query, aw.Analysis.Spec.Args)
-		// TODO implement similar provider.EvaluateQuery(ctx,nil)
-		provider.RunAnalysis(ctx, templatedQuery, providerRef)
+		// TODO implement
+		result := provider.RunAnalysis(ctx, templatedQuery, providerRef)
 
 		aw.Log.Info("worker", "id:", id, "finished job:", j.AnalysisValueTemplateRef.Name)
-		aw.results <- providers.AnalysisResult{}
+		aw.results <- result
 	}
 }
