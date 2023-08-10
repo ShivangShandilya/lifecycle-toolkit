@@ -20,13 +20,15 @@ import (
 	"context"
 	"github.com/go-logr/logr"
 	metricsapi "github.com/keptn/lifecycle-toolkit/metrics-operator/api/v1alpha3"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
+	"time"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 // AnalysisReconciler reconciles a Analysis object
@@ -45,19 +47,67 @@ type AnalysisReconciler struct {
 // TODO(user): Modify the Reconcile function to compare the state specified by
 // the Analysis object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
-// the user.
+// the usea.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
-func (r *AnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+func (a *AnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	a.Log.Info("Reconciling Analysis")
+	analysis := &metricsapi.Analysis{}
+
+	if err := a.Client.Get(ctx, req.NamespacedName, analysis); err != nil {
+		if errors.IsNotFound(err) {
+			// taking down all associated K8s resources is handled by K8s
+			a.Log.Info("Analysis resource not found. Ignoring since object must be deleted")
+			return ctrl.Result{}, nil
+		}
+		a.Log.Error(err, "Failed to get the Analysis")
+		return ctrl.Result{}, nil
+	}
+
+	analysisDef, err := a.fetchAnalysisDefinition(ctx, types.NamespacedName{Name: analysis.Spec.AnalysisDefinition.Name, Namespace: analysis.Spec.AnalysisDefinition.Namespace})
+	if err != nil {
+		if errors.IsNotFound(err) {
+			a.Log.Info(err.Error() + ", ignoring error since object must be deleted")
+			return ctrl.Result{Requeue: true, RequeueAfter: 10 * time.Second}, nil
+		}
+		a.Log.Error(err, "Failed to retrieve the AnalysisDefinition")
+		return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
+	}
+
+	for _, obj := range analysisDef.Spec.Objectives {
+
+	}
 
 	return ctrl.Result{}, nil
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *AnalysisReconciler) SetupWithManager(mgr ctrl.Manager) error {
+// SetupWithManager sets up the controller with the Managea.
+func (a *AnalysisReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&metricsapi.Analysis{}, builder.WithPredicates(predicate.GenerationChangedPredicate{})).
-		Complete(r)
+		Complete(a)
+}
+
+func (a *AnalysisReconciler) fetchAnalysisDefinition(ctx context.Context, namespacedAnalysis types.NamespacedName) (*metricsapi.AnalysisDefinition, error) {
+	definition := &metricsapi.AnalysisDefinition{}
+	if err := a.Client.Get(ctx, namespacedAnalysis, definition); err != nil {
+		return nil, err
+	}
+	return definition, nil
+}
+
+func (a *AnalysisReconciler) fetchTemplate(ctx context.Context, namespacedAnalysis types.NamespacedName) (*metricsapi.AnalysisDefinition, error) {
+	definition := &metricsapi.AnalysisDefinition{}
+	if err := a.Client.Get(ctx, namespacedAnalysis, definition); err != nil {
+		return nil, err
+	}
+	return definition, nil
+}
+
+func Get[T metricsapi.AnalysisDefinition | metricsapi.AnalysisValueTemplate](ctx context.Context, name types.NamespacedName, obj client.Object, c client.Client) (*T, error) {
+	if err := c.Get(ctx, name, obj); err != nil {
+		return nil, err
+	}
+	return obj.(*T), nil
 }
