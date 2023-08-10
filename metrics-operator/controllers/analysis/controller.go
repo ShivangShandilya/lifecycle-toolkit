@@ -34,8 +34,9 @@ import (
 // AnalysisReconciler reconciles a Analysis object
 type AnalysisReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
-	Log    logr.Logger
+	Scheme     *runtime.Scheme
+	Log        logr.Logger
+	numWorkers int //maybe 2 or 4 as def
 }
 
 //+kubebuilder:rbac:groups=metrics.keptn.sh,resources=analyses,verbs=get;list;watch;create;update;patch;delete
@@ -49,12 +50,13 @@ type AnalysisReconciler struct {
 // perform operations to make the cluster state reflect the state specified by
 // the usea.
 //
-// For more details, check Reconcile and its Result here:
+// For more details, check Reconcile and its AnalysisResult here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.13.0/pkg/reconcile
 func (a *AnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	a.Log.Info("Reconciling Analysis")
 	analysis := &metricsapi.Analysis{}
 
+	//retrieve analysis
 	if err := a.Client.Get(ctx, req.NamespacedName, analysis); err != nil {
 		if errors.IsNotFound(err) {
 			// taking down all associated K8s resources is handled by K8s
@@ -65,7 +67,15 @@ func (a *AnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, nil
 	}
 
-	analysisDef, err := a.fetchAnalysisDefinition(ctx, types.NamespacedName{Name: analysis.Spec.AnalysisDefinition.Name, Namespace: analysis.Spec.AnalysisDefinition.Namespace})
+	//find AnalysisDefinition to have the collection of Objectives
+	analysisDef := &metricsapi.AnalysisDefinition{}
+	err := a.Client.Get(ctx,
+		types.NamespacedName{
+			Name:      analysis.Spec.AnalysisDefinition.Name,
+			Namespace: analysis.Spec.AnalysisDefinition.Namespace},
+		analysisDef,
+	)
+
 	if err != nil {
 		if errors.IsNotFound(err) {
 			a.Log.Info(err.Error() + ", ignoring error since object must be deleted")
@@ -75,10 +85,15 @@ func (a *AnalysisReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{RequeueAfter: 10 * time.Second}, nil
 	}
 
-	for _, obj := range analysisDef.Spec.Objectives {
+	//create multiple workers handling the Objectives
+	wp := NewWorkerPool(analysis, analysisDef, a.numWorkers, a.Client, a.Log)
 
-	}
+	wp.dispatchObjectives(ctx)
+	wp.collectAnalysisResults()
 
+	//TODO compute score and update status
+
+	//TODO update final status making sure analysis did not change!!
 	return ctrl.Result{}, nil
 }
 
@@ -87,27 +102,4 @@ func (a *AnalysisReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&metricsapi.Analysis{}, builder.WithPredicates(predicate.GenerationChangedPredicate{})).
 		Complete(a)
-}
-
-func (a *AnalysisReconciler) fetchAnalysisDefinition(ctx context.Context, namespacedAnalysis types.NamespacedName) (*metricsapi.AnalysisDefinition, error) {
-	definition := &metricsapi.AnalysisDefinition{}
-	if err := a.Client.Get(ctx, namespacedAnalysis, definition); err != nil {
-		return nil, err
-	}
-	return definition, nil
-}
-
-func (a *AnalysisReconciler) fetchTemplate(ctx context.Context, namespacedAnalysis types.NamespacedName) (*metricsapi.AnalysisDefinition, error) {
-	definition := &metricsapi.AnalysisDefinition{}
-	if err := a.Client.Get(ctx, namespacedAnalysis, definition); err != nil {
-		return nil, err
-	}
-	return definition, nil
-}
-
-func Get[T metricsapi.AnalysisDefinition | metricsapi.AnalysisValueTemplate](ctx context.Context, name types.NamespacedName, obj client.Object, c client.Client) (*T, error) {
-	if err := c.Get(ctx, name, obj); err != nil {
-		return nil, err
-	}
-	return obj.(*T), nil
 }

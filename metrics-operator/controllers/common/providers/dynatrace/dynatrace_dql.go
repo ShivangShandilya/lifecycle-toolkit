@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/keptn/lifecycle-toolkit/metrics-operator/controllers/common/providers"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -28,6 +29,11 @@ type keptnDynatraceDQLProvider struct {
 
 	dtClient dtclient.DTAPIClient
 	clock    clock.Clock
+}
+
+func (d *keptnDynatraceDQLProvider) RunAnalysis(ctx context.Context, query string, provider *metricsapi.KeptnMetricsProvider) providers.AnalysisResult {
+	//TODO implement me
+	panic("implement me")
 }
 
 type DynatraceDQLHandler struct {

@@ -2,7 +2,8 @@ package prometheus
 
 import (
 	"context"
-	"fmt"      //nolint:gci
+	"fmt" //nolint:gci
+	"github.com/keptn/lifecycle-toolkit/metrics-operator/controllers/common/providers"
 	"net/http" //nolint:gci
 	"time"
 
@@ -16,6 +17,11 @@ import (
 type KeptnPrometheusProvider struct {
 	Log        logr.Logger
 	HttpClient http.Client
+}
+
+func (r *KeptnPrometheusProvider) RunAnalysis(ctx context.Context, query string, provider *metricsapi.KeptnMetricsProvider) providers.AnalysisResult {
+	//TODO implement me
+	panic("implement me")
 }
 
 // EvaluateQuery fetches the SLI values from prometheus provider

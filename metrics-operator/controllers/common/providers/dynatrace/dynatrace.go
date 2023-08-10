@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/keptn/lifecycle-toolkit/metrics-operator/controllers/common/providers"
 	"io"
 	"net/http"
 	"net/url"
@@ -20,6 +21,11 @@ type KeptnDynatraceProvider struct {
 	Log        logr.Logger
 	HttpClient http.Client
 	K8sClient  client.Client
+}
+
+func (d *KeptnDynatraceProvider) RunAnalysis(ctx context.Context, query string, provider *metricsapi.KeptnMetricsProvider) providers.AnalysisResult {
+	//TODO implement me
+	panic("implement me")
 }
 
 type DynatraceResponse struct {

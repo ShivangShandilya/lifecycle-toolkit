@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/keptn/lifecycle-toolkit/metrics-operator/controllers/common/providers"
 	"io"
 	"net/http"
 	"net/url"
@@ -20,6 +21,11 @@ type KeptnDataDogProvider struct {
 	Log        logr.Logger
 	HttpClient http.Client
 	K8sClient  client.Client
+}
+
+func (d *KeptnDataDogProvider) RunAnalysis(ctx context.Context, query string, provider *metricsapi.KeptnMetricsProvider) providers.AnalysisResult {
+	//TODO implement me
+	panic("implement me")
 }
 
 // EvaluateQuery fetches the SLI values from datadog provider
